@@ -2,7 +2,14 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  private users = [
+    {
+      id: '123',
+      name: 'Admin User'
+    }
+  ]
+
+  getUserProfile(userId: string){
+    return this.users.find(user => user.id === userId) || null; 
   }
 }
