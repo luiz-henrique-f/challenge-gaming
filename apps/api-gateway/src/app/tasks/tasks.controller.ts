@@ -12,7 +12,7 @@ export class TasksController {
     @Get()
     async getUserProfile(@Req() req) {
         const userId = req.user.userId;
-        const user$ = this.authClient.send('get-user-profile', userId);
+        const user$ = this.authClient.send('get-user-profile', '123');
         return await firstValueFrom(user$);
     }
 }

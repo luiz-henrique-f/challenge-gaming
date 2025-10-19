@@ -6,13 +6,13 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern("auth-login")
-  async login(@Payload() credential: { username: string; password: string }) {
-    return this.appService.login(credential);
-  }
+  // @MessagePattern("auth-login")
+  // async login(@Payload() credential: { username: string; password: string }) {
+  //   return this.appService.login(credential);
+  // }
 
-  @MessagePattern("validate-token")
+  /*@MessagePattern("validate-token")
   async validateToken(@Payload() token: string) {
     return this.appService.validateToken(token);
-  }
+  }*/
 }

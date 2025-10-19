@@ -9,7 +9,7 @@ export class AppService {
     }
   ]
 
-  getUserProfile(userId: string){
-    return this.users.find(user => user.id === userId) || null; 
+  getUserProfile(){
+    return 'oi'; 
   }
 }

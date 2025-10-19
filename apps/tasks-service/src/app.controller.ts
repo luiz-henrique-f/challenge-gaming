@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern("get-user-profile") 
-  getUserProfile(@Payload() userId: string) {
-    return this.appService.getUserProfile(userId);
+  getUserProfile() {
+    return this.appService.getUserProfile();
   }
 }
