@@ -26,14 +26,14 @@ export class AuthService {
 
         console.log('Login bem-sucedido para:', foundUser.username);
 
-        const tokens = await this.generateTokens(foundUser.id, foundUser.username);
+        const tokens = await this.generateTokens(foundUser.id, foundUser.username, foundUser.name);
         await this.updateRefreshToken(foundUser.id, tokens.refreshToken);
 
         return tokens;
     }
 
-    private async generateTokens(userId: string, username: string) {
-        const payload = { sub: userId, username };
+    private async generateTokens(userId: string, username: string, name: string) {
+        const payload = { sub: userId, username, name };
 
         const accessToken = await this.jwtService.signAsync(payload, {
             secret: this.configService.get('JWT_ACCESS_SECRET'),
@@ -68,7 +68,7 @@ export class AuthService {
             const valid = compareSync(refreshToken, user.hashedRefreshToken);
             if (!valid) throw new UnauthorizedException('Refresh token inválido');
 
-            const tokens = await this.generateTokens(user.id, user.username);
+            const tokens = await this.generateTokens(user.id, user.username, user.name);
             await this.updateRefreshToken(user.id, tokens.refreshToken);
 
             return tokens;
@@ -79,12 +79,10 @@ export class AuthService {
 
     async validateToken(token: string) {
         try {
-            await this.jwtService.verifyAsync(token, {
-                secret: this.configService.get('JWT_ACCESS_SECRET'),
-            });
-            return { valid: true };
-        } catch (err) {
-            return { valid: false };
+            const decoded = this.jwtService.verify(token);
+            return { valid: true, userId: decoded.sub, username: decoded.username, name: decoded.name };
+        } catch(err){
+            return { valid: false, userId: null, username: null };
         }
     }
 }

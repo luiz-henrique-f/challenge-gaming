@@ -9,11 +9,6 @@ export class AuthController {
     constructor(
         @Inject('AUTH-SERVICE') private readonly authClient: ClientProxy,
     ){}
-
-    // @Post("login")
-    // async login(@Body() body: { username: string; password: string }) {
-    //     return await firstValueFrom(this.authClient.send('auth-login', body));
-    // }
     
     @HttpCode(HttpStatus.OK)
     @Post("login")
@@ -22,7 +17,6 @@ export class AuthController {
             return await firstValueFrom(
                 this.authClient.send('login-user', body).pipe(
                     catchError(error => {
-                        // Transforma o erro RPC em um erro HTTP
                         throw new HttpException(
                             error.message || 'Erro interno',
                             error.status || 500
@@ -31,7 +25,6 @@ export class AuthController {
                 )
             );
         } catch (error) {
-            // Log para debugging
             console.error('Erro no gateway:', error);
             throw error;
         }
@@ -43,7 +36,6 @@ export class AuthController {
             return await firstValueFrom(
                 this.authClient.send('create-user', user).pipe(
                     catchError(error => {
-                        // Transforma o erro RPC em um erro HTTP
                         throw new HttpException(
                             error.message || 'Erro interno',
                             error.status || 500
@@ -52,11 +44,9 @@ export class AuthController {
                 )
             );
         } catch (error) {
-            // Log para debugging
             console.error('Erro no gateway:', error);
             throw error;
         }
-        // return await firstValueFrom(this.authClient.send('create-user', user));
     }
 
     @HttpCode(HttpStatus.OK)

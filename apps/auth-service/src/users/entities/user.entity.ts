@@ -14,7 +14,7 @@ export class UserEntity {
     @Column({ type: 'varchar', length: 256 })
     password: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, name: 'hashed_refresh_token'})
     hashedRefreshToken?: string;
 
     @CreateDateColumn({ type: 'timestamp', name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
