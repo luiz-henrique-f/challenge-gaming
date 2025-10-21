@@ -8,6 +8,7 @@ import { CommentEntity } from './entities/comment.entity';
 
 import { TaskHistoryModule } from '../task-history/task-history.module'; // ✅ Caminho relativo
 import { TaskModule } from '../task/task.module'; // ✅ Caminho relativo + nome correto
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   controllers: [CommentController],
@@ -15,6 +16,17 @@ import { TaskModule } from '../task/task.module'; // ✅ Caminho relativo + nome
     TypeOrmModule.forFeature([CommentEntity]),
     TaskHistoryModule,
     forwardRef(() => TaskModule),
+    ClientsModule.register([
+      {
+        name: 'NOTIFICATIONS-SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://admin:admin@localhost:5672'],
+          queue: 'notifications_queue',
+          queueOptions: { durable: true },
+        },
+      },
+    ])
   ],
   providers: [CommentService],
   exports: [CommentService],

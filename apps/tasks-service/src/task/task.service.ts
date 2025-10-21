@@ -13,7 +13,8 @@ export class TaskService {
     private taskRepository: Repository<TaskEntity>,
     private taskHistoryService: TaskHistoryService,
     private dataSource: DataSource,
-    // @Inject('RABBITMQ_CLIENT') private rabbitmqClient: ClientProxy,
+    @Inject('NOTIFICATIONS-SERVICE')
+    private readonly notificationsClient: ClientProxy,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<TaskEntity> {
@@ -42,13 +43,15 @@ export class TaskService {
 
       await queryRunner.commitTransaction();
 
-      // Publicar evento
-      // this.rabbitmqClient.emit('task.created', {
-      //   taskId: savedTask.id,
-      //   title: savedTask.title,
-      //   assignedUserIds: savedTask.assignedUserIds,
-      //   createdBy: userId,
-      // });
+      console.log(`Emitting task.created event: ${savedTask}`)
+
+      this.notificationsClient.emit('task.created', {
+        type: 'task.created',
+        taskId: savedTask.id,
+        title: savedTask.title,
+        assignedUserIds: savedTask.assignedUserIds,
+        createdBy: userId,
+      });
 
       return savedTask;
     } catch (error) {
@@ -74,7 +77,6 @@ export class TaskService {
       Object.assign(task, updateTaskDto);
       const savedTask = await queryRunner.manager.save(task);
 
-      // Registrar mudanças no histórico - CORRIGIDO
       const changes = this.getChanges(oldValues, savedTask);
       if (changes.length > 0) {
         await this.taskHistoryService.create(
@@ -90,20 +92,22 @@ export class TaskService {
         );
       }
 
-      // await queryRunner.commitTransaction();
+      await queryRunner.commitTransaction();
 
-      // Publicar evento
-      // this.rabbitmqClient.emit('task.updated', {
-      //   taskId: savedTask.id,
-      //   title: savedTask.title,
-      //   assignedUserIds: savedTask.assignedUserIds,
-      //   updatedBy: userId,
-      //   changes,
-      // });
+      console.log(`Emitting task.created event: ${savedTask}`)
+
+      this.notificationsClient.emit('task.updated', {
+        type: 'task.updated',
+        taskId: savedTask.id,
+        title: savedTask.title,
+        assignedUserIds: savedTask.assignedUserIds,
+        updatedBy: userId,
+        changes: changes
+      });
 
       return savedTask;
     } catch (error) {
-      // await queryRunner.rollbackTransaction();
+      await queryRunner.rollbackTransaction();
       throw error;
     } 
   }

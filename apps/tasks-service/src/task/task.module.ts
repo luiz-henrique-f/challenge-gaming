@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskEntity } from './entities/task.entity';
 import { CommentModule } from 'src/comment/comment.module';
 import { TaskHistoryModule } from 'src/task-history/task-history.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   controllers: [TaskController],
@@ -12,6 +13,17 @@ import { TaskHistoryModule } from 'src/task-history/task-history.module';
     TypeOrmModule.forFeature([TaskEntity]),
     forwardRef(() => CommentModule),
     TaskHistoryModule,
+    ClientsModule.register([
+      {
+        name: 'NOTIFICATIONS-SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://admin:admin@localhost:5672'],
+          queue: 'notifications_queue',
+          queueOptions: { durable: true },
+        },
+      },
+    ])
   ],
   providers: [TaskService],
   exports: [TaskService]

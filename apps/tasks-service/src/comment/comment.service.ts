@@ -7,6 +7,7 @@ import { TaskHistoryService } from '../task-history/task-history.service';
 import { TaskService } from 'src/task/task.service';
 import { CommentEntity } from './entities/comment.entity';
 import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class CommentService {
@@ -16,7 +17,8 @@ export class CommentService {
     private tasksService: TaskService,
     private taskHistoryService: TaskHistoryService,
     private dataSource: DataSource,
-    // @Inject('RABBITMQ_CLIENT') private rabbitmqClient: ClientProxy,
+    @Inject('NOTIFICATIONS-SERVICE')
+    private readonly notificationsClient: ClientProxy
   ) {}
 
   async create(
@@ -29,7 +31,6 @@ export class CommentService {
     await queryRunner.startTransaction();
 
     try {
-      // Verificar se a task existe
       const task = await this.tasksService.findById(taskId);
       if (!task) {
         throw new Error('Task not found');
@@ -47,16 +48,17 @@ export class CommentService {
 
       await queryRunner.commitTransaction();
 
-      // Publicar evento
-      // this.rabbitmqClient.emit('task.comment.created', {
-      //   taskId,
-      //   commentId: savedComment.id,
-      //   content: savedComment.content,
-      //   userId: user.id,
-      //   userEmail: user.email,
-      //   userName: user.name,
-      //   assignedUserIds: task.assignedUserIds,
-      // });
+      this.notificationsClient.emit('task.comment.created', {
+        type: 'task.comment.created',
+        taskId,
+        commentId: savedComment.id,
+        content: savedComment.content,
+        userId: user.id,
+        userEmail: user.username,
+        userName: user.name,
+        assignedUserIds: task.assignedUserIds,
+        title: task.title,
+      });
 
       return savedComment;
     } catch (error) {
@@ -92,7 +94,7 @@ export class CommentService {
 
       await queryRunner.commitTransaction();
 
-      // Publicar evento
+      // TODO: Atualizar para 'task.comment.updated' quando implementado
       // this.rabbitmqClient.emit('task.comment.updated', {
       //   taskId: comment.taskId,
       //   commentId: savedComment.id,

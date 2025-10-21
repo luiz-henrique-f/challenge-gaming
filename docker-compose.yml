@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # Frontend React Application
   web:
@@ -13,6 +15,12 @@ services:
     networks:
       - challenge-network
     command: npm run dev
+    # O frontend geralmente precisa de volumes para HMR/Hot Reload.
+    # Se ainda estiver lento, considere remover os volumes.
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
 
   # API Gateway
   api-gateway:
@@ -23,21 +31,23 @@ services:
       target: development
     ports:
       - '3001:3001'
-    volumes:
-      - .:/app
-      - ./packages:/app/packages
-      - /app/node_modules
-      - /app/apps/api-gateway/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3001
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy # AGUARDA O DB ESTAR SAUDÁVEL
       rabbitmq:
-        condition: service_started
+        condition: service_healthy # AGUARDA O RABBITMQ ESTAR SAUDÁVEL
     networks:
       - challenge-network
+    command: npm run dev
+    # ATENÇÃO: Volumes removidos para MÁXIMA PERFORMANCE (Menor I/O no WSL2).
+    # Se precisar de hot-reload, adicione de volta:
+    # volumes:
+    #  - .:/app
+    #  - /app/node_modules
+    #  - /app/apps/api-gateway/node_modules
 
   # Auth Service
   auth-service:
@@ -48,21 +58,18 @@ services:
       target: development
     ports:
       - '3002:3002'
-    volumes:
-      - .:/app
-      - ./packages:/app/packages
-      - /app/node_modules
-      - /app/apps/auth-service/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3002
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - challenge-network
+    command: npm run dev
+    # Volumes removidos para performance.
 
   # Tasks Service
   tasks-service:
@@ -73,21 +80,18 @@ services:
       target: development
     ports:
       - '3003:3003'
-    volumes:
-      - .:/app
-      - ./packages:/app/packages
-      - /app/node_modules
-      - /app/apps/tasks-service/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3003
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - challenge-network
+    command: npm run dev
+    # Volumes removidos para performance.
 
   # Notifications Service
   notifications-service:
@@ -98,21 +102,18 @@ services:
       target: development
     ports:
       - '3004:3004'
-    volumes:
-      - .:/app
-      - ./packages:/app/packages
-      - /app/node_modules
-      - /app/apps/notifications-service/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3004
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - challenge-network
+    command: npm run dev
+    # Volumes removidos para performance.
 
   # Postgres Database
   db:
@@ -130,6 +131,12 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
       POSTGRES_DB: challenge_db
+    healthcheck: # ADICIONADO HEALTHCHECK
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   # RabbitMQ
   rabbitmq:
@@ -146,6 +153,12 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
     volumes: ['rabbitmq_data:/var/lib/rabbitmq']
+    healthcheck: # ADICIONADO HEALTHCHECK
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 volumes:
   postgres_data:
