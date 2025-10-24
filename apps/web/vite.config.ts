@@ -10,9 +10,13 @@ export default defineConfig({
       target: 'react',
       autoCodeSplitting: true,
     }), react(), tailwindcss()],
+  optimizeDeps: {
+    include: ['@repo/types']
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      '@repo/types': '/home/luiz_henrique/challenge-gaming-jungle/packages/types/src'
     },
   },
   server: {

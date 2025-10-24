@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { createFileRoute } from '@tanstack/react-router'
 import { useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
@@ -12,11 +13,21 @@ function RouteComponent() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleClickSignOut = () => {
-    signOut();
-    navigate({ to: '/login' });
+  console.log(user)
 
+  if (user) {
+      navigate({ to: '/tasks', replace: true });
   }
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate({ to: '/login', replace: true });
+  //   }
+  // }, [user, navigate]);
+
+  const handleClickSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -31,6 +42,7 @@ function RouteComponent() {
       ) : (
         <AuthModal />
       )}
+      <div>oi</div>
     </div>
   );
 }

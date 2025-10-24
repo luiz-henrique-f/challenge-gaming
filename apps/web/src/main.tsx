@@ -9,6 +9,8 @@ import ReactDOM from 'react-dom/client'
 import React from 'react'
 
 import { routeTree } from './routeTree.gen'
+import { Toaster } from 'sonner'
+import { NotificationsProvider } from './components/notifications/NotificationsProvider.tsx'
 
 const router = createRouter({ routeTree })
 
@@ -23,7 +25,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <div className="dark">
       <div className='bg-background text-foreground'>
         <AuthProvider>
-    <RouterProvider router={router} />
+          <NotificationsProvider>
+            <Toaster position='top-right' />
+            <RouterProvider router={router} />
+          </NotificationsProvider>
         </AuthProvider>
       </div>
     </div>

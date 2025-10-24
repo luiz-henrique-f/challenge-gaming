@@ -1,13 +1,11 @@
 // apps/tasks-service/src/comments/comments.service.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, EntityManager } from 'typeorm';
-import { TaskHistoryService } from '../task-history/task-history.service';
-// import { ClientProxy } from '@nestjs/microservices';
+import { Repository, DataSource } from 'typeorm';
 import { TaskService } from 'src/task/task.service';
 import { CommentEntity } from './entities/comment.entity';
 import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class CommentService {
@@ -15,7 +13,6 @@ export class CommentService {
     @InjectRepository(CommentEntity)
     private commentRepository: Repository<CommentEntity>,
     private tasksService: TaskService,
-    private taskHistoryService: TaskHistoryService,
     private dataSource: DataSource,
     @Inject('NOTIFICATIONS-SERVICE')
     private readonly notificationsClient: ClientProxy
@@ -33,7 +30,7 @@ export class CommentService {
     try {
       const task = await this.tasksService.findById(taskId);
       if (!task) {
-        throw new Error('Task not found');
+        throw new RpcException({ status: 404, message: 'Tarefa não encontrada' });
       }
 
       const comment = this.commentRepository.create({
@@ -81,11 +78,11 @@ export class CommentService {
     try {
       const comment = await this.findById(id);
       if (!comment) {
-        throw new Error('Comment not found');
+        throw new RpcException({ status: 404, message: 'Comentário não encontrado' });
       }
-
+      
       if (comment.userId !== userId) {
-        throw new Error('You can only update your own comments');
+        throw new RpcException({ status: 404, message: 'Você só pode atualizar seus próprios comentários.' });
       }
 
       Object.assign(comment, updateCommentDto);

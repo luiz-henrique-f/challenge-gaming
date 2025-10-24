@@ -16,7 +16,7 @@ export class UsersService {
         const userAlreadyRegistered = await this.findByUserName(newUser.username);
 
         if(userAlreadyRegistered){
-            throw new ConflictException(`User '${newUser.username}' already registered`);
+            throw new ConflictException(`Usuário '${newUser.username}' já existe no sistema.`);
         }
 
         const dbUser = new UserEntity();

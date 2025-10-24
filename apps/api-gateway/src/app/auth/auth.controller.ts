@@ -1,7 +1,9 @@
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Inject, Post, UseInterceptors } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
-import { CreateUserDto } from '@repo/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { PostLoginDto } from './dto/post-login.dto';
+// import { CreateUserDto } from '@repo/types';
 
 @Controller('api/auth')
 export class AuthController {
@@ -12,7 +14,7 @@ export class AuthController {
     
     @HttpCode(HttpStatus.OK)
     @Post("login")
-    async login(@Body() body: { username: string; password: string }) {
+    async login(@Body() body: PostLoginDto) {
         try {
             return await firstValueFrom(
                 this.authClient.send('login-user', body).pipe(
@@ -35,12 +37,13 @@ export class AuthController {
         try {
             return await firstValueFrom(
                 this.authClient.send('create-user', user).pipe(
-                    catchError(error => {
+                    catchError(err => {
+                        const error = err?.error || err;
                         throw new HttpException(
                             error.message || 'Erro interno',
                             error.status || 500
                         );
-                    })
+                        })
                 )
             );
         } catch (error) {
@@ -55,12 +58,13 @@ export class AuthController {
             try {
                 return await firstValueFrom(
                     this.authClient.send('refresh-token', body.refreshToken).pipe(
-                    catchError((error) => {
+                    catchError(err => {
+                        const error = err?.error || err;
                         throw new HttpException(
-                        error.message || 'Erro interno',
-                        error.status || 500,
+                            error.message || 'Erro interno',
+                            error.status || 500
                         );
-                    }),
+                        })
                     ),
                 );
             } catch (error) {

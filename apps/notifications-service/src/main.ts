@@ -1,21 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { NotificationsModule } from './notifications/notifications.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.RMQ,
-      options: {
-        urls: ['amqp://admin:admin@localhost:5672'],
-        queue: 'notifications_queue',
-        queueOptions: { durable: true },
-      },
-    },
-  );
+  // cria a instância HTTP (necessária para socket.io)
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' });
 
-  await app.listen();
+  // conecta ao RabbitMQ como microserviço
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://admin:admin@localhost:5672'],
+      queue: 'notifications_queue',
+      queueOptions: { durable: true },
+    },
+  });
+
+  // inicia ambos
+  await app.startAllMicroservices();
+  await app.listen(3004); // agora o socket.io pode escutar nesta porta
+
+  console.log('Notifications service running on port 3004');
 }
 bootstrap();

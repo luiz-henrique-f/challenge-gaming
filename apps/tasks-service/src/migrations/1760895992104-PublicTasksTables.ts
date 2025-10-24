@@ -9,12 +9,12 @@ export class PublicTasksTables1760895992104 implements MigrationInterface {
             `CREATE TABLE "tasks" (
                 id uuid NOT NULL DEFAULT uuid_generate_v4(),
                 title varchar(255) NOT NULL,
-                description text NOT NULL,
-                deadline TIMESTAMP NOT NULL,
-                priority varchar(20) NOT NULL CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')) DEFAULT 'MEDIUM',
-                status varchar(20) NOT NULL CHECK (status IN ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE')) DEFAULT 'TODO',
+                description text NULL,
+                deadline TIMESTAMP NULL,
+                priority varchar(20) NULL CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
+                status varchar(20) NULL CHECK (status IN ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE')),
                 created_by uuid NOT NULL,
-                assigned_user_ids text[] NOT NULL DEFAULT '{}',
+                assigned_user_ids text[] NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT now(),
                 updated_at TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT tasks_pk_id PRIMARY KEY (id)

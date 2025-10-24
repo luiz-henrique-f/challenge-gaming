@@ -12,6 +12,7 @@ export class NotificationsGateway implements OnGatewayConnection {
 
   handleConnection(socket: any) {
     const userId = socket.handshake.query.userId;
+    console.log(`Cliente conectado: ${userId}`);
     socket.join(`user_${userId}`);
   }
 

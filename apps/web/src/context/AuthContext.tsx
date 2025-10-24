@@ -31,10 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginUser = async (username: string, password: string) => {
-    const data = await login({ username, password });
-    const newUser = { id: "", name: data.name ?? "", username };
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    // const data = await login({ username, password });
+    const { user } = await login({ username, password });
+    // const newUser = { id: "", name: data.name ?? "", username };
+    setUser(user);
+    // localStorage.setItem("user", JSON.stringify(newUser));
   };
 
   const registerUser = async (name: string, username: string, password: string) => {

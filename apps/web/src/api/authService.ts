@@ -18,10 +18,11 @@ export const register = async (data: RegisterData) => {
 
 export const login = async (data: LoginData) => {
   const response = await api.post("/auth/login", data);
-  const { accessToken, refreshToken } = response.data;
+  const { accessToken, refreshToken, user } = response.data;
 
   localStorage.setItem("accessToken", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
+  localStorage.setItem("user", JSON.stringify(user));
 
   return response.data;
 };

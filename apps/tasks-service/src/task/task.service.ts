@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { TaskHistoryService } from '../task-history/task-history.service';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { TaskEntity } from './entities/task.entity';
 import { CreateTaskDto, UpdateTaskDto } from '@repo/types';
 
@@ -70,7 +70,7 @@ export class TaskService {
     try {
       const task = await this.findById(id);
       if (!task) {
-        throw new Error('Task not found');
+        throw new RpcException({ status: 404, message: 'Tarefa não encontrada' });
       }
 
       const oldValues = { ...task };

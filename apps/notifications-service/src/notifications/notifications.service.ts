@@ -27,6 +27,7 @@ export class NotificationsService {
     const savedNotifications = await this.notificationRepository.save(notifications);
 
     savedNotifications.forEach((notif) => {
+      console.log('Sending notification to user:', notif.userId, 'Content:', notif.content);
     this.gateway.notifyUser(notif.userId, notif);
   });
 

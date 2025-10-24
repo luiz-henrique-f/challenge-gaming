@@ -9,33 +9,33 @@ export class TaskEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({  type: 'varchar', length: 255 })
   title: string;
 
-  @Column('text')
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   deadline: Date;
 
   @Column({
     type: 'enum',
     enum: TaskPriority,
-    default: TaskPriority.MEDIUM
+    nullable: true
   })
   priority: TaskPriority;
 
   @Column({
     type: 'enum',
     enum: TaskStatus,
-    default: TaskStatus.TODO
+    nullable: true
   })
   status: TaskStatus;
 
   @Column({type: 'uuid', name: 'created_by'})
   createdBy: string; // ID do usuário que criou a tarefa
 
-  @Column({type: 'simple-array', name: 'assigned_user_ids'})
+  @Column({ type: 'simple-array', name: 'assigned_user_ids', nullable: true })
   assignedUserIds: string[]; // IDs dos usuários atribuídos
 
   @CreateDateColumn({name: 'created_at'})

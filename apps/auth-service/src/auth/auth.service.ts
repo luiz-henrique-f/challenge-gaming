@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
-import { AuthResponseDto } from '@repo/types';
+import { AuthResponseDto, AuthResponseRefreshDto } from '@repo/types';
 import { compareSync as bcryptCompareSync, hashSync, compareSync } from 'bcrypt';
 
 @Injectable()
@@ -26,10 +26,17 @@ export class AuthService {
 
         console.log('Login bem-sucedido para:', foundUser.username);
 
+        const user = {  id: foundUser.id, name: foundUser.name, username: foundUser.username };
+
         const tokens = await this.generateTokens(foundUser.id, foundUser.username, foundUser.name);
         await this.updateRefreshToken(foundUser.id, tokens.refreshToken);
 
-        return tokens;
+        return {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+                expiresIn: tokens.expiresIn,
+                user
+                };
     }
 
     private async generateTokens(userId: string, username: string, name: string) {
@@ -54,7 +61,7 @@ export class AuthService {
         await this.usersService.update(userId, hashed );
     }
 
-    async refreshTokens(refreshToken: string): Promise<AuthResponseDto> {
+    async refreshTokens(refreshToken: string): Promise<AuthResponseRefreshDto> {
         try {
             const payload = await this.jwtService.verifyAsync(refreshToken, {
                 secret: this.configService.get('JWT_REFRESH_SECRET'),
