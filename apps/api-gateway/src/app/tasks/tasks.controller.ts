@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Inject, Param, ParseUUIDPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Inject, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
@@ -13,6 +13,28 @@ export class TasksController {
     constructor(
         @Inject('TASKS-SERVICE') private readonly tasksClient: ClientProxy,
     ){}
+
+    @Get()
+  async findAll(@Query('page') page = 1, @Query('size') size = 10, @Req() req) {
+    try {
+      const userId = req.user.userId;
+      const tasks$ = this.tasksClient.send('task-list', { page, size });
+
+      return await firstValueFrom(
+        tasks$.pipe(
+          catchError((error) => {
+            throw new HttpException(
+              error.message || 'Erro interno',
+              error.status || 500,
+            );
+          }),
+        ),
+      );
+    } catch (error) {
+      console.error('Erro no gateway:', error);
+      throw error;
+    }
+  }
 
     @Get(':id')
         async getTask(@Param('id', ParseUUIDPipe) id: string, @Req() req) {

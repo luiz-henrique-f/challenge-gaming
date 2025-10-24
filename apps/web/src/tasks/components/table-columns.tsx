@@ -21,6 +21,14 @@ export type Tasks = {
   createdBy: string
 }
 
+export type TasksResponse = {
+  tasks: Tasks[]
+  total: number
+  page: number
+  size: number
+  totalPages: number
+}
+
 export const columns: ColumnDef<Tasks>[] = [
   {
     id: "title",
@@ -56,7 +64,8 @@ export const columns: ColumnDef<Tasks>[] = [
     id: "actions",
     header: "Ações",
     cell: () => {
-        <DropdownMenu>
+        return (
+          <DropdownMenu>
             <DropdownMenuTrigger>
                 <Button variant="ghost" size="icon">
                     <MoreVerticalIcon className="h-4 w-4 text-white"/>
@@ -71,6 +80,7 @@ export const columns: ColumnDef<Tasks>[] = [
                 <DropdownMenuItem>Subscription</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
+        )
     }
   }
 ]

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { TaskService } from './task.service';
 import { CreateTaskDto, UpdateTaskDto } from '@repo/types';
 
@@ -23,10 +23,24 @@ export class TaskController {
     return this.taskService.getById(id);
   }
 
-  // @MessagePattern('task-list')
-  // async getTasks(@Payload() filters: any) {
-  //   return this.taskService.getTasks(filters);
-  // }
+  @MessagePattern('task-list')
+  async findAll(@Payload() data: { page: number; size: number; userId: string }) {
+    try {
+      // caso queira filtrar por usuário, adicione no filtro:
+      const filters = {
+        page: Number(data.page) || 1,
+        size: Number(data.size) || 10,
+        // createdBy: data.userId, // opcional, se quiser retornar só as do usuário
+      };
+
+      return this.taskService.findAll(filters);
+    } catch (error) {
+      throw new RpcException({
+        status: error.status || 500,
+        message: error.message || 'Erro ao buscar tarefas',
+      });
+    }
+  }
 
   @MessagePattern('task-delete')
   async deleteTask(@Payload() id: string) {

@@ -129,15 +129,21 @@ export class TaskService {
     return this.taskRepository.delete({ id });
   }
 
-  async findAll(filters: any): Promise<{ tasks: TaskEntity[]; total: number }> {
-    const [tasks, total] = await this.taskRepository.findAndCount({
-      where: filters,
-      order: { createdAt: 'DESC' },
-      skip: (filters.page - 1) * filters.size,
-      take: filters.size,
-    });
+  async findAll(filters: { page?: number; size?: number; [key: string]: any }): Promise<{ tasks: TaskEntity[]; total: number }> {
+  const page = Number(filters.page) > 0 ? Number(filters.page) : 1;
+  const size = Number(filters.size) > 0 ? Number(filters.size) : 10;
 
-    return { tasks, total };
+  const [tasks, total] = await this.taskRepository.findAndCount({
+    where: {},
+    order: { createdAt: 'DESC' },
+    skip: (page - 1) * size,
+    take: size,
+  });
+
+  return {
+    tasks,
+    total,
+    };
   }
 
   private getChanges(oldTask: TaskEntity, newTask: TaskEntity): string[] {

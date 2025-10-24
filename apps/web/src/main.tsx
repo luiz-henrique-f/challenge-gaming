@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext.tsx'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import ReactDOM from 'react-dom/client'
 import React from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { routeTree } from './routeTree.gen'
 import { Toaster } from 'sonner'
@@ -20,15 +21,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutos
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <div className="dark">
       <div className='bg-background text-foreground'>
         <AuthProvider>
-          <NotificationsProvider>
-            <Toaster position='top-right' />
-            <RouterProvider router={router} />
-          </NotificationsProvider>
+          <QueryClientProvider client={queryClient}>
+            <NotificationsProvider>
+              <Toaster position='top-right' />
+              <RouterProvider router={router} />
+            </NotificationsProvider>
+          </QueryClientProvider>
         </AuthProvider>
       </div>
     </div>
