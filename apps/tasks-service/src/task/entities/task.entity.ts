@@ -33,10 +33,13 @@ export class TaskEntity {
   status: TaskStatus;
 
   @Column({type: 'uuid', name: 'created_by'})
-  createdBy: string; // ID do usuário que criou a tarefa
+  createdBy: string;
+
+  @Column({type: 'text', name: 'created_by_name'})
+  createdByName: string;
 
   @Column({ type: 'simple-array', name: 'assigned_user_ids', nullable: true })
-  assignedUserIds: string[]; // IDs dos usuários atribuídos
+  assignedUserIds: string[];
 
   @CreateDateColumn({name: 'created_at'})
   createdAt: Date;

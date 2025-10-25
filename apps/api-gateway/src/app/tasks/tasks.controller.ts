@@ -15,26 +15,49 @@ export class TasksController {
     ){}
 
     @Get()
-  async findAll(@Query('page') page = 1, @Query('size') size = 10, @Req() req) {
+    async findAll(
+    @Req() req,
+    @Query('page') page = 1, 
+    @Query('size') size = 10, 
+    @Query('search') search?: string,
+    @Query('priority') priority?: string,
+    @Query('status') status?: string,
+    @Query('dueDateRange') dueDateRange?: string,
+    @Query('assignedToMe') assignedToMe?: string,
+    @Query('createdByMe') createdByMe?: string,
+    ) {
     try {
-      const userId = req.user.userId;
-      const tasks$ = this.tasksClient.send('task-list', { page, size });
+        const userId = req.user.userId;
+        
+        const filters = {
+        page: Number(page) || 1,
+        size: Number(size) || 10,
+        userId,
+        ...(search && { search }),
+        ...(priority && { priority }),
+        ...(status && { status }),
+        ...(dueDateRange && { dueDateRange }),
+        ...(assignedToMe && { assignedToMe: assignedToMe === 'true' }),
+        ...(createdByMe && { createdByMe: createdByMe === 'true' }),
+        };
 
-      return await firstValueFrom(
+        const tasks$ = this.tasksClient.send('task-list', filters);
+
+        return await firstValueFrom(
         tasks$.pipe(
-          catchError((error) => {
+            catchError((error) => {
             throw new HttpException(
-              error.message || 'Erro interno',
-              error.status || 500,
+                error.message || 'Erro interno',
+                error.status || 500,
             );
-          }),
+            }),
         ),
-      );
+        );
     } catch (error) {
-      console.error('Erro no gateway:', error);
-      throw error;
+        console.error('Erro no gateway:', error);
+        throw error;
     }
-  }
+    }
 
     @Get(':id')
         async getTask(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
@@ -46,9 +69,11 @@ export class TasksController {
         async createTask(@Body() createTaskDto: CreateTaskDto, @Req() req) {
                 try {
                     const userId = req.user.userId;
+                    const name = req.user.name;
                     const task$ = this.tasksClient.send('task-create', { 
                     dto: createTaskDto, 
-                    userId 
+                    userId,
+                    name
                     });
                     return await firstValueFrom(
                         task$.pipe(

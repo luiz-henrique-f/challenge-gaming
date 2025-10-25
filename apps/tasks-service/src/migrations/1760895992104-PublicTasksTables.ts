@@ -14,6 +14,7 @@ export class PublicTasksTables1760895992104 implements MigrationInterface {
                 priority varchar(20) NULL CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
                 status varchar(20) NULL CHECK (status IN ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE')),
                 created_by uuid NOT NULL,
+                created_by_name text NOT NULL,
                 assigned_user_ids text[] NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT now(),
                 updated_at TIMESTAMP NOT NULL DEFAULT now(),

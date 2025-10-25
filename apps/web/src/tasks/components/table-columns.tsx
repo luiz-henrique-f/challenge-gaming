@@ -16,7 +16,7 @@ export type Tasks = {
   deadline: string
   priority: TaskPriority
   status: TaskStatus
-  createdBy: string
+  createdByName: string
   assignedUserIds?: string[] // Adicione isso se necessário
 }
 
@@ -120,8 +120,8 @@ export const getColumns = ({
     }
   },
   {
-    id: "createdBy",
-    accessorKey: "createdBy",
+    id: "createdByName",
+    accessorKey: "createdByName",
     header: "Criado por",
   }
 ]

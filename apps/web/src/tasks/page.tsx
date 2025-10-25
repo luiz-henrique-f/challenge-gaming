@@ -4,16 +4,18 @@ import { getColumns } from "./components/table-columns";
 import { useTasks } from "@/hooks/useTasks";
 import { useDeleteTask } from "@/hooks/useDeleteTask";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Filter, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Loader2, Plus, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { CreateTaskModal } from "./components/create-task-modal";
 import { EditTaskModal } from "./components/edit-task-modal";
-import { DeleteTaskModal } from "./components/delete-task-modal"; // 👈 Importe a nova modal
+import { DeleteTaskModal } from "./components/delete-task-modal";
 import type { Tasks } from "./components/table-columns";
 import { TaskCommentsSheet } from "./components/task-comments-sheet";
+// import { Footer } from "@/components/global/footer";
 
 export function TasksPage() {
   const { isOpen, open, close } = useTaskModal()
@@ -23,6 +25,11 @@ export function TasksPage() {
   const [search, setSearch] = useState("");
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
+  
+  // 🔹 NOVOS FILTROS
+  const [dueDateRange, setDueDateRange] = useState(""); // Prazo
+  const [assignedToMe, setAssignedToMe] = useState(false); // Atribuídos para mim
+  const [createdByMe, setCreatedByMe] = useState(false); // Criados por mim
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -36,13 +43,21 @@ export function TasksPage() {
     setIsCommentsSheetOpen(true)
   }
 
-  // 🔹 Função para fechar o sheet de comentários
   const handleCloseCommentsSheet = () => {
     setIsCommentsSheetOpen(false)
     setSelectedTaskForComments(null)
   }
 
-  const { data, isLoading, isError } = useTasks(page, size);
+  const { data, isLoading, isError } = useTasks({ 
+    page, 
+    size,
+    search,
+    priority,
+    status,
+    dueDateRange,
+    assignedToMe,
+    createdByMe
+  });
   const deleteTaskMutation = useDeleteTask();
 
   const handlePreviousPage = () => page > 1 && setPage(page - 1);
@@ -52,6 +67,9 @@ export function TasksPage() {
     setSearch("");
     setPriority("");
     setStatus("");
+    setDueDateRange(""); // 🔹 Limpa o filtro de prazo
+    setAssignedToMe(false); // 🔹 Limpa o filtro "Atribuídos para mim"
+    setCreatedByMe(false); // 🔹 Limpa o filtro "Criados por mim"
   };
 
   const handleEditTask = (task: Tasks) => {
@@ -93,7 +111,8 @@ export function TasksPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-lg">
-        Carregando tasks...
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            Carregando Tasks...
       </div>
     );
   }
@@ -155,40 +174,92 @@ export function TasksPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TODO">A fazer</SelectItem>
-                  <SelectItem value="DOING">Em andamento</SelectItem>
+                  <SelectItem value="IN_PROGRESS">Em andamento</SelectItem>
+                  <SelectItem value="REVIEW">Em Revisão</SelectItem>
                   <SelectItem value="DONE">Concluída</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* 🔹 NOVO FILTRO: Prazo */}
+            <div className="flex flex-col space-y-1">
+              <Label htmlFor="dueDate" className="text-sm text-gray-300">
+                Prazo
+              </Label>
+              <Select value={dueDateRange} onValueChange={setDueDateRange}>
+                <SelectTrigger className="w-48 bg-[#0B0F19] border-blue-900/40 text-gray-200">
+                  <SelectValue placeholder="Todos os prazos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">Vence em 5 dias</SelectItem>
+                  <SelectItem value="10">Vence em 10 dias</SelectItem>
+                  <SelectItem value="15">Vence em 15 dias</SelectItem>
+                  <SelectItem value="30">Vence em 30 dias</SelectItem>
+                  <SelectItem value="expired">Vencidas</SelectItem>
+                  <SelectItem value="no_due_date">Sem prazo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 🔹 NOVOS FILTROS: Checkboxes */}
+            <div className="flex flex-col space-y-3">
+              <Label className="text-sm text-gray-300">Filtros Adicionais</Label>
+              <div className="flex flex-col space-y-2">
+                {/* Atribuídos para mim */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="assignedToMe"
+                    checked={assignedToMe}
+                    onCheckedChange={(checked) => setAssignedToMe(checked as boolean)}
+                    className="border-blue-900/40 data-[state=checked]:bg-blue-600"
+                  />
+                  <Label 
+                    htmlFor="assignedToMe" 
+                    className="text-sm text-gray-300 cursor-pointer"
+                  >
+                    Atribuídos para mim
+                  </Label>
+                </div>
+
+                {/* Criados por mim */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="createdByMe"
+                    checked={createdByMe}
+                    onCheckedChange={(checked) => setCreatedByMe(checked as boolean)}
+                    className="border-blue-900/40 data-[state=checked]:bg-blue-600"
+                  />
+                  <Label 
+                    htmlFor="createdByMe" 
+                    className="text-sm text-gray-300 cursor-pointer"
+                  >
+                    Criados por mim
+                  </Label>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Ações */}
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="border-blue-900/40 hover:bg-blue-950 text-gray-300"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Filtrar
-            </Button>
-            <Button
-              variant="ghost"
-              className="text-gray-400 hover:text-gray-200 hover:bg-transparent"
-              onClick={handleClearFilters}
-            >
-              <X className="w-4 h-4 mr-1" />
-              Limpar
-            </Button>
-            <Button
-              variant="default"
-              className="text-gray-300 cursor-pointer"
-              onClick={open}
-              disabled={deleteTaskMutation.isPending}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Adicionar
-            </Button>
-          </div>
+              <Button
+                variant="ghost"
+                className="text-gray-400 hover:text-gray-200 hover:bg-transparent"
+                onClick={handleClearFilters}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Limpar
+              </Button>
+              <Button
+                variant="default"
+                className="text-gray-300 cursor-pointer"
+                onClick={open}
+                disabled={deleteTaskMutation.isPending}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Adicionar
+              </Button>
+            </div>
         </div>
       </div>
 
@@ -260,6 +331,8 @@ export function TasksPage() {
         onClose={handleCloseCommentsSheet}
         task={selectedTaskForComments}
       />
+
+      {/* <Footer /> */}
     </div>
   );
 }

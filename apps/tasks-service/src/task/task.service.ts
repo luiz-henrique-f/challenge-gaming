@@ -17,7 +17,7 @@ export class TaskService {
     private readonly notificationsClient: ClientProxy,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto, userId: string): Promise<TaskEntity> {
+  async create(createTaskDto: CreateTaskDto, userId: string, name: string): Promise<TaskEntity> {
     if (createTaskDto.deadline && new Date(createTaskDto.deadline) < new Date()) {
       throw new RpcException({ status: 404, message: 'A data de prazo não pode ser menor que a data e hora atual.' });
     }
@@ -29,6 +29,7 @@ export class TaskService {
       const task = this.taskRepository.create({
         ...createTaskDto,
         createdBy: userId,
+        createdByName: name,
       });
 
     const savedTask = await queryRunner.manager.save(task);
@@ -135,7 +136,17 @@ export class TaskService {
     return this.taskRepository.delete({ id });
   }
 
-  async findAll(filters: { page?: number; size?: number; [key: string]: any }): Promise<{ 
+  async findAll(filters: { 
+  page?: number; 
+  size?: number; 
+  userId: string;
+  search?: string;
+  priority?: string;
+  status?: string;
+  dueDateRange?: string;
+  assignedToMe?: boolean;
+  createdByMe?: boolean;
+}): Promise<{ 
   tasks: TaskEntity[]; 
   total: number; 
   totalPages: number; 
@@ -143,21 +154,85 @@ export class TaskService {
   const page = Number(filters.page) > 0 ? Number(filters.page) : 1;
   const size = Number(filters.size) > 0 ? Number(filters.size) : 10;
 
-  const [tasks, total] = await this.taskRepository.findAndCount({
-    where: {},
-    order: { createdAt: 'DESC' },
-    skip: (page - 1) * size,
-    take: size,
-  });
+  // Cria o query builder
+  const queryBuilder = this.taskRepository.createQueryBuilder('task');
 
+  // 🔹 Filtro de busca (título ou descrição)
+  if (filters.search) {
+    queryBuilder.andWhere(
+      '(task.title ILIKE :search OR task.description ILIKE :search)',
+      { search: `%${filters.search}%` }
+    );
+  }
+
+  // 🔹 Filtro de prioridade
+  if (filters.priority) {
+    queryBuilder.andWhere('task.priority = :priority', { 
+      priority: filters.priority 
+    });
+  }
+
+  // 🔹 Filtro de status
+  if (filters.status) {
+    queryBuilder.andWhere('task.status = :status', { 
+      status: filters.status 
+    });
+  }
+
+  // 🔹 Filtro de prazo
+  if (filters.dueDateRange) {
+    const today = new Date();
+    
+    if (filters.dueDateRange === 'expired') {
+      // Tarefas vencidas
+      queryBuilder.andWhere('task.deadline < :today', { today });
+    } else if (filters.dueDateRange === 'no_due_date') {
+      // Tarefas sem prazo
+      queryBuilder.andWhere('task.deadline IS NULL');
+    } else {
+      // Tarefas que vencem em X dias
+      const days = parseInt(filters.dueDateRange);
+      if (!isNaN(days)) {
+        const targetDate = new Date();
+        targetDate.setDate(today.getDate() + days);
+        
+        queryBuilder.andWhere(
+          'task.deadline BETWEEN :today AND :targetDate', 
+          { today, targetDate }
+        );
+      }
+    }
+  }
+
+  // 🔹 Filtro "Atribuídos para mim"
+  if (filters.assignedToMe) {
+  // 🔹 Para campo texto com UUIDs separados por vírgula
+    queryBuilder.andWhere("task.assignedUserIds LIKE :userId", { 
+      userId: `%${filters.userId}%` 
+    });
+  }
+
+  // 🔹 Filtro "Criados por mim"
+  if (filters.createdByMe) {
+    queryBuilder.andWhere('task.created_by = :userId', { 
+      userId: filters.userId 
+    });
+  }
+
+  // Ordenação e paginação
+  queryBuilder.orderBy('task.createdAt', 'DESC')
+             .skip((page - 1) * size)
+             .take(size);
+
+  const [tasks, total] = await queryBuilder.getManyAndCount();
   const totalPages = Math.ceil(total / size);
 
   return {
-      tasks,
-      total,
-      totalPages,
-    };
-  } 
+    tasks,
+    total,
+    totalPages,
+  };
+}
 
   private getChanges(oldTask: TaskEntity, newTask: TaskEntity): string[] {
     const changes: string[] = [];

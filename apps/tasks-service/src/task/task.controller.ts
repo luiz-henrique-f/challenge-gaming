@@ -9,8 +9,8 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @MessagePattern('task-create')
-  async createTask(@Payload() data: { dto: CreateTaskDto; userId: string }) {
-    return this.taskService.create(data.dto, data.userId);
+  async createTask(@Payload() data: { dto: CreateTaskDto; userId: string, name: string }) {
+    return this.taskService.create(data.dto, data.userId, data.name);
   }
 
   @MessagePattern('task-update')
@@ -24,13 +24,28 @@ export class TaskController {
   }
 
   @MessagePattern('task-list')
-  async findAll(@Payload() data: { page: number; size: number; userId: string }) {
+  async findAll(@Payload() data: { 
+    page: number; 
+    size: number; 
+    userId: string;
+    search?: string;
+    priority?: string;
+    status?: string;
+    dueDateRange?: string;
+    assignedToMe?: boolean;
+    createdByMe?: boolean;
+  }) {
     try {
-      // caso queira filtrar por usuário, adicione no filtro:
       const filters = {
         page: Number(data.page) || 1,
         size: Number(data.size) || 10,
-        // createdBy: data.userId, // opcional, se quiser retornar só as do usuário
+        userId: data.userId,
+        ...(data.search && { search: data.search }),
+        ...(data.priority && { priority: data.priority }),
+        ...(data.status && { status: data.status }),
+        ...(data.dueDateRange && { dueDateRange: data.dueDateRange }),
+        ...(data.assignedToMe && { assignedToMe: data.assignedToMe }),
+        ...(data.createdByMe && { createdByMe: data.createdByMe }),
       };
 
       return this.taskService.findAll(filters);
