@@ -1,3 +1,5 @@
+import { Header } from '@/components/global/header'
+import LandingPage from '@/landing-page/page'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
@@ -5,5 +7,10 @@ export const Route = createFileRoute('/')({
 })
 
 function RouteComponent() {
-  return <div>Hello "/"!</div>
+  return (
+    <div>
+      <Header />
+      <LandingPage />
+    </div>
+  )
 }
