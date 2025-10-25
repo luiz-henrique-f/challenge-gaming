@@ -50,6 +50,10 @@ export class UsersService {
         await this.usersRepository.update(userId, { hashedRefreshToken });
     }
 
+    async findAll() {
+        return this.usersRepository.find({ select: { id: true, name: true, username: true } });
+    }
+
     async findById(userId: string) {
         const userFound =  await this.usersRepository.findOne({
             where: { id: userId }

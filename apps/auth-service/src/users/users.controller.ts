@@ -7,6 +7,11 @@ import { CreateUserDto } from '@repo/types';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    @MessagePattern("find-all-users")
+    async findAllUsers() {
+        return await this.usersService.findAll();
+      }
+
     @MessagePattern("create-user")
       async createdUser(@Payload() user: CreateUserDto) {
         try {

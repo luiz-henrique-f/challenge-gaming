@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { TaskHistoryService } from '../task-history/task-history.service';
@@ -18,6 +18,9 @@ export class TaskService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<TaskEntity> {
+    if (createTaskDto.deadline && new Date(createTaskDto.deadline) < new Date()) {
+      throw new RpcException({ status: 404, message: 'A data de prazo não pode ser menor que a data e hora atual.' });
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -63,6 +66,9 @@ export class TaskService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string): Promise<TaskEntity> {
+    if (updateTaskDto.deadline && new Date(updateTaskDto.deadline) < new Date()) {
+      throw new RpcException({ status: 404, message: 'A data de prazo não pode ser menor que a data e hora atual.' });
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -129,7 +135,11 @@ export class TaskService {
     return this.taskRepository.delete({ id });
   }
 
-  async findAll(filters: { page?: number; size?: number; [key: string]: any }): Promise<{ tasks: TaskEntity[]; total: number }> {
+  async findAll(filters: { page?: number; size?: number; [key: string]: any }): Promise<{ 
+  tasks: TaskEntity[]; 
+  total: number; 
+  totalPages: number; 
+}> {
   const page = Number(filters.page) > 0 ? Number(filters.page) : 1;
   const size = Number(filters.size) > 0 ? Number(filters.size) : 10;
 
@@ -140,11 +150,14 @@ export class TaskService {
     take: size,
   });
 
+  const totalPages = Math.ceil(total / size);
+
   return {
-    tasks,
-    total,
+      tasks,
+      total,
+      totalPages,
     };
-  }
+  } 
 
   private getChanges(oldTask: TaskEntity, newTask: TaskEntity): string[] {
     const changes: string[] = [];

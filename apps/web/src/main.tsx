@@ -34,7 +34,7 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <div className="dark">
-      <div className='bg-background text-foreground'>
+      <div className='text-foreground'>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
             <NotificationsProvider>

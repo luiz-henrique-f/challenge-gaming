@@ -11,6 +11,7 @@ import {
 import { TaskStatus, TaskPriority } from '@repo/types';
 
 export class CreateTaskDto {
+  
   @IsNotEmpty()
   @IsString()
   @MaxLength(255, { message: 'Título muito longo. Informe até 255 caracteres.' })
@@ -35,5 +36,5 @@ export class CreateTaskDto {
   @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
-  assigned_user_ids?: string[];
+  assignedUserIds?: string[];
 }

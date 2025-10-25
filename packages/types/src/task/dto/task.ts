@@ -32,7 +32,6 @@ export class UpdateTaskDto {
 
 export class CreateCommentDto {
   content: string;
-  // taskId: string; // ID da tarefa à qual o comentário pertence
 }
 
 export class UpdateCommentDto {

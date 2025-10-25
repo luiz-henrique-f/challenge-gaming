@@ -1,8 +1,9 @@
-import { Body, Controller, HttpCode, HttpException, HttpStatus, Inject, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PostLoginDto } from './dto/post-login.dto';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
 // import { CreateUserDto } from '@repo/types';
 
 @Controller('api/auth')
@@ -71,5 +72,26 @@ export class AuthController {
                 console.error('Erro no gateway (refresh-token):', error);
                 throw error;
             }
+    }
+
+    @UseGuards(AuthGuard)
+    @Get("users")
+    async findAllUsers() {
+        try {
+            return await firstValueFrom(
+                this.authClient.send('find-all-users', {}).pipe(
+                    catchError(err => {
+                        const error = err?.error || err;
+                        throw new HttpException(
+                            error.message || 'Erro interno',
+                            error.status || 500
+                        );
+                        })
+                )
+            );
+        } catch (error) {
+            console.error('Erro no gateway:', error);
+            throw error;
+        }
     }
 }
