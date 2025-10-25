@@ -40,7 +40,6 @@ interface CreateTaskModalProps {
 export function CreateTaskModal({ isOpen, onClose }: CreateTaskModalProps) {
   const createTaskMutation = useCreateTask()
   const { data: users = [], isLoading: isLoadingUsers } = useUsers()
-  console.log(users)
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),

@@ -63,7 +63,6 @@ export function DataTable<TData, TValue>({
                   {cell.column.columnDef.id === 'priority' || cell.column.columnDef.id === 'status' ? (
                     (() => {
                       const cellContent = cell.getValue()
-                      console.log(cellContent)
                       return cellContent ? <Badge>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Badge> : ''
                     })()
                   ) : (

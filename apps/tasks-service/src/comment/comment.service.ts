@@ -117,6 +117,50 @@ export class CommentService {
     });
   }
 
+  async findAllByTaskId(
+    taskId: string, 
+    page: number = 1, 
+    size: number = 10
+  ) {
+    // Verifica se a task existe
+    const task = await this.tasksService.findById(taskId);
+    if (!task) {
+      throw new RpcException({ status: 404, message: 'Tarefa não encontrada' });
+    }
+
+    // Calcula o offset
+    const skip = (page - 1) * size;
+
+    // Busca os comentários com paginação
+    const [comments, total] = await this.commentRepository.findAndCount({
+      where: { taskId },
+      order: { createdAt: 'ASC' }, // Ordem crescente para chat
+      skip,
+      take: size,
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        userName: true,
+        userEmail: true,
+        taskId: true,
+      },
+    });
+
+    // Calcula o total de páginas
+    const totalPages = Math.ceil(total / size);
+
+    return {
+      comments,
+      total,
+      page,
+      size,
+      totalPages,
+    };
+  }
+
   async findById(id: string): Promise<CommentEntity | null> {
     return this.commentRepository.findOne({ where: { id } });
   }

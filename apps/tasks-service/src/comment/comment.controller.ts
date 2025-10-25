@@ -16,4 +16,9 @@ export class CommentController {
   async updateTask(@Payload() data: { id: string; dto: UpdateCommentDto; userId: string }) {
     return this.commentService.update(data.id, data.dto, data.userId);
   }
+
+   @MessagePattern('comment-find-all')
+   async findAllByTaskId(@Payload() data: { taskId: string; page: number; size: number }) {
+    return this.commentService.findAllByTaskId(data.taskId, data.page, data.size);
+  }
 }

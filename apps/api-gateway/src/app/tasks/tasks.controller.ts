@@ -164,7 +164,38 @@ export class TasksController {
                     console.error('Erro no gateway:', error);
                     throw error;
                 }
-            
-            // return await firstValueFrom(comment$);
         }
+
+    @Get(':id/comments')
+    async findTaskComments(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Query('page') page: number = 1,
+        @Query('size') size: number = 10,
+        @Req() req
+    ) {
+        try {
+            const pageNumber = Math.max(1, Number(page));
+            const sizeNumber = Math.max(1, Math.min(Number(size), 100)); // Limita a 100 por página
+
+            const comments$ = this.tasksClient.send('comment-find-all', {
+                taskId: id,
+                page: pageNumber,
+                size: sizeNumber,
+            });
+
+            return await firstValueFrom(
+                comments$.pipe(
+                    catchError((error) => {
+                        throw new HttpException(
+                            error.message || 'Erro interno',
+                            error.status || 500,
+                        );
+                    }),
+                ),
+            );
+        } catch (error) {
+            console.error('Erro no gateway:', error);
+            throw error;
+        }
+    }
 }

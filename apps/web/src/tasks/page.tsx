@@ -13,6 +13,7 @@ import { CreateTaskModal } from "./components/create-task-modal";
 import { EditTaskModal } from "./components/edit-task-modal";
 import { DeleteTaskModal } from "./components/delete-task-modal"; // 👈 Importe a nova modal
 import type { Tasks } from "./components/table-columns";
+import { TaskCommentsSheet } from "./components/task-comments-sheet";
 
 export function TasksPage() {
   const { isOpen, open, close } = useTaskModal()
@@ -24,8 +25,22 @@ export function TasksPage() {
   const [status, setStatus] = useState("");
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 👈 Novo estado
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Tasks | null>(null);
+
+  const [isCommentsSheetOpen, setIsCommentsSheetOpen] = useState(false)
+  const [selectedTaskForComments, setSelectedTaskForComments] = useState<Tasks | null>(null)
+
+  const handleViewComments = (task: Tasks) => {
+    setSelectedTaskForComments(task)
+    setIsCommentsSheetOpen(true)
+  }
+
+  // 🔹 Função para fechar o sheet de comentários
+  const handleCloseCommentsSheet = () => {
+    setIsCommentsSheetOpen(false)
+    setSelectedTaskForComments(null)
+  }
 
   const { data, isLoading, isError } = useTasks(page, size);
   const deleteTaskMutation = useDeleteTask();
@@ -67,10 +82,6 @@ export function TasksPage() {
         }
       });
     }
-  };
-
-  const handleViewComments = (task: Tasks) => {
-    console.log('Visualizar comentários da task:', task.id);
   };
 
   const columns = getColumns({
@@ -242,6 +253,12 @@ export function TasksPage() {
         onConfirm={handleConfirmDelete}
         task={selectedTask}
         isDeleting={deleteTaskMutation.isPending}
+      />
+
+      <TaskCommentsSheet
+        isOpen={isCommentsSheetOpen}
+        onClose={handleCloseCommentsSheet}
+        task={selectedTaskForComments}
       />
     </div>
   );
