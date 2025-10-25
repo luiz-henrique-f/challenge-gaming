@@ -14,7 +14,7 @@ export function AuthModal() {
         <DialogHeader>
           <DialogTitle>Bem-vindo!</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="login" className="mt-4">
+        {/* <Tabs defaultValue="login" className="mt-4">
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Registrar</TabsTrigger>
@@ -23,9 +23,9 @@ export function AuthModal() {
             <Login />
           </TabsContent>
           <TabsContent value="register">
-            <Register />
           </TabsContent>
-        </Tabs>
+        </Tabs> */}
+          <Register />
       </DialogContent>
     </Dialog>
   );

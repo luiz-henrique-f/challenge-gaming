@@ -16,6 +16,7 @@ export function DropdownMenuOptions() {
   const { signOut } = useAuth();
 
   const handleClickSignOut = async () => {
+    console.log('qq')
     await signOut();
   };
   return (

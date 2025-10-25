@@ -1,3 +1,4 @@
+// AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { login, register } from "@/api/authService";
@@ -24,24 +25,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const accessToken = localStorage.getItem("accessToken");
+    
+    if (storedUser && accessToken) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
   const loginUser = async (username: string, password: string) => {
-    // const data = await login({ username, password });
-    const { user } = await login({ username, password });
-    // const newUser = { id: "", name: data.name ?? "", username };
+    const { user, accessToken, refreshToken } = await login({ username, password });
+    
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(user));
+    
     setUser(user);
-    // localStorage.setItem("user", JSON.stringify(newUser));
   };
 
   const registerUser = async (name: string, username: string, password: string) => {
-    const data = await register({ name, username, password });
-    setUser(data);
-    localStorage.setItem("user", JSON.stringify(data));
+    await register({ name, username, password });
   };
 
   const signOut = () => {
