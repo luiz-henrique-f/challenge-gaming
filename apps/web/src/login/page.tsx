@@ -45,7 +45,6 @@ export function LoginPage() {
 
   const handleRegisterSuccess = () => {
     setIsRegisterModalOpen(false);
-    toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
   }
 
   return (

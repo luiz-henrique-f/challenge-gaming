@@ -4,6 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Header } from '@/components/global/header';
+import { Footer } from '@/components/global/footer';
 
 export const Route = createFileRoute('/tasks')({
   component: RouteComponent,
@@ -20,12 +21,12 @@ function RouteComponent() {
   }, [user, navigate]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-dark-pattern text-white">
+    <div className="relative min-h-screen overflow-hidden bg-dark-pattern text-white flex flex-col">
       {/* Overlay sutil */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0D1117]/90 via-[#0B0F19]/95 to-[#0A0E14]/90" />
 
       {/* Conteúdo */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex-grow">
         <Header />
         <main className="flex flex-col items-center justify-center mt-3.5 px-8 text-center w-full max-w-7xl mx-auto">
           {/* <h1 className="text-4xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
@@ -48,6 +49,7 @@ function RouteComponent() {
           )} */}
         </main>
       </div>
+      <Footer />
     </div>
   );
 }

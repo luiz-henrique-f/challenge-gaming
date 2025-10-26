@@ -1,22 +1,28 @@
-# apps/Dockerfile (modelo genérico)
-ARG SERVICE
-FROM node:20-alpine AS builder
+# apps/auth-service/Dockerfile.dev
+FROM node:20-alpine as development
+
 WORKDIR /app
 
-COPY ../../package*.json ./
-RUN npm install -g pnpm
-RUN pnpm install
+# ⭐️ Copia APENAS arquivos necessários para npm install
+COPY package*.json ./
+COPY turbo.json ./
+COPY apps/auth-service/package.json ./apps/auth-service/
+COPY packages/ ./packages/
 
-COPY ../../apps/${SERVICE} ./apps/${SERVICE}
-WORKDIR /app/apps/${SERVICE}
-RUN pnpm run build
+# ⭐️ Instala com cache otimizado
+# RUN npm install --prefer-offline --no-audit
 
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/apps/${SERVICE}/dist ./dist
-COPY ../../apps/${SERVICE}/package*.json ./
-RUN npm install --omit=dev
+# COPY . .
 
-ARG PORT=3000
-EXPOSE ${PORT}
-CMD ["node", "dist/main.js"]
+
+# RUN npm ci --prefer-offline --no-audit
+RUN npm ci --prefer-offline --no-audit --no-fund
+
+# RUN npx turbo build --filter=@repo/types...
+
+# ⭐️ O resto do código via VOLUMES (não COPY)
+WORKDIR /app/apps/auth-service
+
+EXPOSE 3002
+
+CMD ["npm", "run", "dev"]

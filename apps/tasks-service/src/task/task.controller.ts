@@ -1,7 +1,39 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { TaskService } from './task.service';
-import { CreateTaskDto, UpdateTaskDto } from '@repo/types';
+// import { CreateTaskDto, UpdateTaskDto } from '@repo/types';
+
+export enum TaskPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  REVIEW = 'REVIEW',
+  DONE = 'DONE',
+}
+
+export class CreateTaskDto {
+  title: string;
+  description?: string;
+  deadline?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  assigned_user_ids?: string[];
+}
+
+export class UpdateTaskDto {
+  title?: string;
+  description?: string;
+  deadline?: Date;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  assignedUserIds?: string[];
+}
 
 
 @Controller()

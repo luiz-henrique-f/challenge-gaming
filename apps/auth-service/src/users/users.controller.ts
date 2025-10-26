@@ -1,7 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
-import { CreateUserDto } from '@repo/types';
+// import { CreateUserDto } from '@repo/types';
+
+export class CreateUserDto {
+    id: string;
+    name: string;
+    username: string;
+    password: string;
+}
 
 @Controller()
 export class UsersController {

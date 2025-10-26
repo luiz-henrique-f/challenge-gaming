@@ -211,7 +211,7 @@ export function TasksPage() {
                     id="assignedToMe"
                     checked={assignedToMe}
                     onCheckedChange={(checked) => setAssignedToMe(checked as boolean)}
-                    className="border-blue-900/40 data-[state=checked]:bg-blue-600"
+                    className="border-blue-900/40 data-[state=checked]:bg-blue-600 cursor-pointer"
                   />
                   <Label 
                     htmlFor="assignedToMe" 
@@ -227,7 +227,7 @@ export function TasksPage() {
                     id="createdByMe"
                     checked={createdByMe}
                     onCheckedChange={(checked) => setCreatedByMe(checked as boolean)}
-                    className="border-blue-900/40 data-[state=checked]:bg-blue-600"
+                    className="border-blue-900/40 data-[state=checked]:bg-blue-600 cursor-pointer"
                   />
                   <Label 
                     htmlFor="createdByMe" 
@@ -244,7 +244,7 @@ export function TasksPage() {
           <div className="flex gap-2">
               <Button
                 variant="ghost"
-                className="text-gray-400 hover:text-gray-200 hover:bg-transparent"
+                className="text-gray-400 hover:text-gray-200 hover:bg-transparent cursor-pointer"
                 onClick={handleClearFilters}
               >
                 <X className="w-4 h-4 mr-1" />
@@ -282,7 +282,7 @@ export function TasksPage() {
               size="sm"
               onClick={handlePreviousPage}
               disabled={page === 1 || deleteTaskMutation.isPending}
-              className="border-blue-900/40"
+              className="border-blue-900/40 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
@@ -297,7 +297,7 @@ export function TasksPage() {
               size="sm"
               onClick={handleNextPage}
               disabled={page >= data.totalPages || deleteTaskMutation.isPending}
-              className="border-blue-900/40"
+              className="border-blue-900/40 cursor-pointer"
             >
               Próxima
               <ChevronRight className="h-4 w-4" />

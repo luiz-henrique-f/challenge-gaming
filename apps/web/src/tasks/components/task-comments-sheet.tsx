@@ -23,7 +23,6 @@ interface TaskCommentsSheetProps {
   } | null
 }
 
-// Hook para obter o userId do usuário logado
 function useCurrentUser() {
   const userStr = localStorage.getItem('user')
   return userStr ? JSON.parse(userStr) : null
@@ -39,19 +38,17 @@ export function TaskCommentsSheet({ isOpen, onClose, task }: TaskCommentsSheetPr
   
   const currentUser = useCurrentUser()
   
-  // Use enabled para controlar quando a query deve rodar
   const { data: commentsData, isLoading, refetch } = useTaskComments(
     task?.id || '', 
     page, 
     size,
     {
-      enabled: isOpen && !!task?.id // Só busca quando o sheet está aberto e tem task
+      enabled: isOpen && !!task?.id
     }
   )
   
   const createCommentMutation = useCreateComment()
 
-  // Efeito principal para carregar as últimas 10 mensagens quando o sheet abre
   useEffect(() => {
     if (isOpen && task) {
       console.log('Sheet aberto - carregando últimas 10 mensagens para task:', task.id)
@@ -69,18 +66,15 @@ export function TaskCommentsSheet({ isOpen, onClose, task }: TaskCommentsSheetPr
     console.log('Dados recebidos:', commentsData)
     if (commentsData?.comments && commentsData.comments.length > 0) {
       if (page === 1) {
-        // Primeira página - substitui todos os comentários com as últimas mensagens
         console.log('Carregando últimas 10 mensagens:', commentsData.comments.length)
         setAllComments(commentsData.comments)
       } else {
-        // Páginas subsequentes - adiciona mensagens mais antigas no início
         console.log('Carregando mensagens mais antigas:', commentsData.comments.length)
         setAllComments(prev => [...commentsData.comments, ...prev])
       }
     }
   }, [commentsData?.comments, page])
 
-  // Scroll para baixo quando as últimas mensagens são carregadas ou novo comentário é adicionado
   useEffect(() => {
     if (page === 1 && allComments.length > 0) {
       console.log('Fazendo scroll para as mensagens mais recentes')
@@ -101,8 +95,6 @@ export function TaskCommentsSheet({ isOpen, onClose, task }: TaskCommentsSheetPr
       })
       
       setNewComment('')
-      // Recarrega os comentários para pegar o novo comentário
-      // Reseta para página 1 para ver as mensagens mais recentes
       setPage(1)
       refetch()
     } catch (error) {
@@ -254,7 +246,7 @@ export function TaskCommentsSheet({ isOpen, onClose, task }: TaskCommentsSheetPr
                 type="submit"
                 size="icon"
                 disabled={!newComment.trim() || createCommentMutation.isPending || isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               >
                 {createCommentMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

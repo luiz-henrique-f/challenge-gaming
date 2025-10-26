@@ -1,8 +1,22 @@
 // apps/tasks-service/src/entities/task.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from 'typeorm';
-import { TaskStatus, TaskPriority } from '@repo/types';
+// import { TaskStatus, TaskPriority } from '@repo/types';
 import { CommentEntity } from 'src/comment/entities/comment.entity';
 import { TaskHistoryEntity } from 'src/task-history/entities/task-history.entity';
+
+export enum TaskPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  REVIEW = 'REVIEW',
+  DONE = 'DONE',
+}
 
 @Entity('tasks')
 export class TaskEntity {

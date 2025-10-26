@@ -1,7 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { CommentService } from './comment.service';
-import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
+// import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+
+export class CreateCommentDto {
+  content: string;
+}
+
+export class UpdateCommentDto {
+  content: string;
+}
 
 @Controller()
 export class CommentController {

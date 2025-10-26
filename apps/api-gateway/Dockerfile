@@ -1,29 +1,27 @@
-# apps/api-gateway/Dockerfile
-FROM node:20-alpine AS builder
+# apps/api-gateway/Dockerfile.dev
+FROM node:20-alpine as development
+
 WORKDIR /app
 
-# Copia o root e dependências
-COPY ../../package*.json ./
-RUN npm install
+# ⭐️ Copia APENAS arquivos necessários para npm install
+COPY package*.json ./
+COPY turbo.json ./
+COPY apps/api-gateway/package.json ./apps/api-gateway/
+COPY packages/ ./packages/
 
-# Copia o pacote de types para dentro do container
-COPY ../../packages/types ./packages/types
+# ⭐️ Instala com cache otimizado
+# RUN npm install --prefer-offline --no-audit
 
-# Copia o código do microsserviço
-COPY ../../apps/api-gateway ./apps/api-gateway
+# RUN npm ci --prefer-offline --no-audit
+RUN npm ci --prefer-offline --no-audit --no-fund
 
-# Entra na pasta do microsserviço e faz o build
+# COPY . .
+
+# RUN npx turbo build --filter=@repo/types...
+
+# ⭐️ O resto do código via VOLUMES (não COPY)
 WORKDIR /app/apps/api-gateway
 
-RUN npm install -g @nestjs/cli
+EXPOSE 3001
 
-RUN npm run build
-
-# --- Runtime ---
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/apps/api-gateway/dist ./dist
-COPY ../../apps/api-gateway/package*.json ./
-RUN npm install --omit=dev
-EXPOSE 3000
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "dev"]

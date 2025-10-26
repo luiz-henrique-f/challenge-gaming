@@ -12,7 +12,7 @@ import { TasksController } from './app/tasks/tasks.controller';
         name: 'AUTH-SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'auth-service', //'127.0.0.1',
           port: 3002,
         }
       },
@@ -20,7 +20,7 @@ import { TasksController } from './app/tasks/tasks.controller';
         name: 'TASKS-SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'tasks-service',//'127.0.0.1',
           port: 3003,
         }
       }

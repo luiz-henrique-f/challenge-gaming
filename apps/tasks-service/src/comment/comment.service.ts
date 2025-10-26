@@ -4,8 +4,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { TaskService } from 'src/task/task.service';
 import { CommentEntity } from './entities/comment.entity';
-import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
+// import { CreateCommentDto, UpdateCommentDto } from '@repo/types';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+
+export class CreateCommentDto {
+  content: string;
+}
+
+export class UpdateCommentDto {
+  content: string;
+}
 
 @Injectable()
 export class CommentService {

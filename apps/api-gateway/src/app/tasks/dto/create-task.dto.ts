@@ -8,7 +8,21 @@ import {
   IsEnum,
   IsDateString,
 } from 'class-validator';
-import { TaskStatus, TaskPriority } from '@repo/types';
+// import { TaskStatus, TaskPriority } from '@repo/types';
+
+export enum TaskPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  REVIEW = 'REVIEW',
+  DONE = 'DONE',
+}
 
 export class CreateTaskDto {
   

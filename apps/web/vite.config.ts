@@ -4,19 +4,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [tanstackRouter({
+  plugins: [
+    tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
-    }), react(), tailwindcss()],
-  optimizeDeps: {
-    include: ['@repo/types']
-  },
+    }), 
+    react(), 
+    tailwindcss()
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      '@repo/types': '/home/luiz_henrique/challenge-gaming-jungle/packages/types/src'
+      '@repo/types': path.resolve(__dirname, "../../packages/types/src")
     },
   },
   server: {

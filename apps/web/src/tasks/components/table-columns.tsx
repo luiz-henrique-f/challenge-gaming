@@ -49,12 +49,12 @@ export const getColumns = ({
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="cursor-pointer">
               <MoreVerticalIcon className="h-4 w-4 text-white"/>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onEditTask(task)}>
+            <DropdownMenuItem onClick={() => onEditTask(task)} className="cursor-pointer">
               Editar Tarefa
             </DropdownMenuItem>
             {onDeleteTask && (
@@ -66,7 +66,7 @@ export const getColumns = ({
               </DropdownMenuItem>
             )}
             {onViewComments && (
-              <DropdownMenuItem onClick={() => onViewComments(task)}>
+              <DropdownMenuItem onClick={() => onViewComments(task)} className="cursor-pointer">
                 Visualizar Comentários
               </DropdownMenuItem>
             )}

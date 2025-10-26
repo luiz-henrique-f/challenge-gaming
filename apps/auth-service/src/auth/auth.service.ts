@@ -2,8 +2,25 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
-import { AuthResponseDto, AuthResponseRefreshDto } from '@repo/types';
+// import { AuthResponseDto, AuthResponseRefreshDto } from '@repo/types';
 import { compareSync as bcryptCompareSync, hashSync, compareSync } from 'bcrypt';
+
+export class AuthResponseDto {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+  }
+}
+
+export class AuthResponseRefreshDto {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
 
 @Injectable()
 export class AuthService {

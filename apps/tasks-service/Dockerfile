@@ -1,22 +1,29 @@
-# apps/Dockerfile (modelo genérico)
-ARG SERVICE
-FROM node:20-alpine AS builder
+# apps/tasks-service/Dockerfile.dev
+FROM node:20-alpine as development
+
 WORKDIR /app
 
-COPY ../../package*.json ./
-RUN npm install -g pnpm
-RUN pnpm install
+# ⭐️ Copia APENAS arquivos necessários para npm install
+COPY package*.json ./
+COPY turbo.json ./
+COPY apps/tasks-service/package.json ./apps/tasks-service/
+COPY packages/ ./packages/
 
-COPY ../../apps/${SERVICE} ./apps/${SERVICE}
-WORKDIR /app/apps/${SERVICE}
-RUN pnpm run build
+# ⭐️ Instala com cache otimizado
+# RUN npm install --prefer-offline --no-audit
 
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/apps/${SERVICE}/dist ./dist
-COPY ../../apps/${SERVICE}/package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --prefer-offline --no-audit --no-fund
 
-ARG PORT=3000
-EXPOSE ${PORT}
-CMD ["node", "dist/main.js"]
+# COPY . .
+
+
+# RUN npm ci --prefer-offline --no-audit
+
+# RUN npx turbo build --filter=@repo/types...
+
+# ⭐️ O resto do código via VOLUMES (não COPY)
+WORKDIR /app/apps/tasks-service
+
+EXPOSE 3003
+
+CMD ["npm", "run", "dev"]

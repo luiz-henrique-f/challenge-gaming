@@ -13,8 +13,6 @@ function RouteComponent() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  console.log(user)
-
   if (user) {
       navigate({ to: '/tasks', replace: true });
   }
