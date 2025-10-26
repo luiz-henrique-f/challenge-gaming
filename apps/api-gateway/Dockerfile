@@ -14,6 +14,9 @@ COPY ../../apps/api-gateway ./apps/api-gateway
 
 # Entra na pasta do microsserviço e faz o build
 WORKDIR /app/apps/api-gateway
+
+RUN npm install -g @nestjs/cli
+
 RUN npm run build
 
 # --- Runtime ---
