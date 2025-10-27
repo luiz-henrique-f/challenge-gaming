@@ -6,6 +6,9 @@ import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpsertCommentDto } from './dto/upsert-comment.dto';
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('RateLimitDebug');
 
 @Controller('api/tasks')
 @UseGuards(AuthGuard)
@@ -27,6 +30,8 @@ export class TasksController {
     @Query('createdByMe') createdByMe?: string,
     ) {
     try {
+        logger.log(`Requisição recebida de IP: ${req.ip}`);
+        logger.log(`Headers: ${JSON.stringify(req.headers)}`);
         const userId = req.user.userId;
         
         const filters = {

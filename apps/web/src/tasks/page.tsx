@@ -48,7 +48,7 @@ export function TasksPage() {
     setSelectedTaskForComments(null)
   }
 
-  const { data, isLoading, isError } = useTasks({ 
+  const { data, isLoading, isError, error } = useTasks({ 
     page, 
     size,
     search,
@@ -118,12 +118,15 @@ export function TasksPage() {
   }
 
   if (isError) {
-    return (
-      <div className="flex items-center justify-center h-64 text-lg text-red-500">
-        Não foi possível renderizar a listagem no momento
-      </div>
-    );
-  }
+  return (
+    <div className="flex items-center justify-center h-64 text-lg text-red-500">
+      {error && 'status' in error && error.status === 429 
+        ? 'Muitas requisições, tente novamente em 60 segundos' 
+        : 'Não foi possível renderizar a listagem no momento'
+      }
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6 w-full">

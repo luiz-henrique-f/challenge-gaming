@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
-  withCredentials: false, // pode ser true se estiver usando cookies
+  withCredentials: false,
 });
 
 // === Interceptor para injetar o token de acesso ===
@@ -14,13 +14,27 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// === Interceptor para refresh automático ===
+// === Interceptor para refresh automático E rate limiting ===
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // se o token expirou e ainda não tentamos o refresh
+    // ⬇️ TRATAMENTO PARA RATE LIMITING (429)
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers['retry-after'] || 60;
+      console.warn(`Rate limit excedido. Tente novamente em ${retryAfter} segundos.`);
+      
+      // Aqui você pode mostrar uma notificação para o usuário
+      if (typeof window !== 'undefined') {
+        // Exemplo usando alert (substitua por seu sistema de notificação)
+        console.log(`Muitas requisições! Tente novamente em ${retryAfter} segundos.`);
+      }
+      
+      return Promise.reject(error);
+    }
+
+    // ⬇️ CÓDIGO EXISTENTE PARA REFRESH TOKEN (401)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -37,7 +51,6 @@ api.interceptors.response.use(
         const { accessToken } = response.data;
         localStorage.setItem("accessToken", accessToken);
 
-        // atualiza o header e refaz a requisição original
         api.defaults.headers.Authorization = `Bearer ${accessToken}`;
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
