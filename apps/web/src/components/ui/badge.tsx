@@ -13,8 +13,22 @@ const badgeVariants = cva(
           "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        low:
+          "border-transparent bg-blue-400 text-black [a&]:hover:bg-blue-400/90 font-bold",
+        high:
+          "border-transparent bg-orange-400 text-black [a&]:hover:bg-orange-400/90 font-bold",
+        medium:
+          "border-transparent bg-yellow-200 text-black [a&]:hover:bg-yellow-200/90 font-bold",
+        todo:
+          "border-transparent bg-emerald-300 text-black [a&]:hover:bg-emerald-300/90 font-bold",
+        in_progress:
+          "border-transparent bg-sky-400 text-black [a&]:hover:bg-sky-400/90 font-bold",
+        review:
+          "border-transparent bg-lime-400 text-black [a&]:hover:bg-lime-400/90 font-bold",
+        done:
+          "border-transparent bg-green-700 text-black [a&]:hover:bg-green-700/90 font-bold",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 font-bold",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },
