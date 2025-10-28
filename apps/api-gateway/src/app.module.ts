@@ -15,24 +15,43 @@ import { ConfigModule } from '@nestjs/config';
       envFilePath: '.env',
     }),
     ClientsModule.register([
-      {
-        name: 'AUTH-SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: 'auth-service',
-          port: 3002,
-        }
-      },
-      {
-        name: 'TASKS-SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: 'tasks-service',
-          port: 3003,
-        }
-      }
-    ]),
-    // ✅ Configuração direta e funcional
+  {
+    name: 'AUTH-SERVICE',
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://admin:admin@rabbitmq:5672'],
+      queue: 'auth_queue',
+      queueOptions: { durable: false },
+    },
+  },
+  {
+    name: 'TASKS-SERVICE',
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://admin:admin@rabbitmq:5672'],
+      queue: 'tasks_queue',
+      queueOptions: { durable: false },
+    },
+  },
+]),
+    // ClientsModule.register([
+    //   {
+    //     name: 'AUTH-SERVICE',
+    //     transport: Transport.TCP,
+    //     options: {
+    //       host: 'auth-service',
+    //       port: 3002,
+    //     }
+    //   },
+    //   {
+    //     name: 'TASKS-SERVICE',
+    //     transport: Transport.TCP,
+    //     options: {
+    //       host: 'tasks-service',
+    //       port: 3003,
+    //     }
+    //   }
+    // ]),
     ThrottlerModule.forRoot([
       {
         name: 'short',

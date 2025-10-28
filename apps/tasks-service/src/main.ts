@@ -7,12 +7,20 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '0.0.0.0',//'127.0.0.1', 
-        port: 3003,
-      }
-    }
+        urls: ['amqp://admin:admin@rabbitmq:5672'],
+        queue: 'tasks_queue',
+        queueOptions: { durable: false },
+      },
+  },
+    // {
+    //   transport: Transport.TCP,
+    //   options: {
+    //     host: '0.0.0.0',//'127.0.0.1', 
+    //     port: 3003,
+    //   }
+    // }
   );
 
   app.useGlobalPipes(new ValidationPipe());

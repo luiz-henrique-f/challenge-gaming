@@ -31,7 +31,6 @@ export class UsersController {
             });
         }
 
-                console.log('aqui')
         // return await this.usersService.create(user);
       }
 }

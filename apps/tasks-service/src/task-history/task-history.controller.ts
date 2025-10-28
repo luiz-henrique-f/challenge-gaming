@@ -5,5 +5,4 @@ import { TaskHistoryService } from './task-history.service';
 export class TaskHistoryController {
   constructor(private readonly taskHistoryService: TaskHistoryService) {}
 
-  // TODO - Implement controller methods as needed
 }

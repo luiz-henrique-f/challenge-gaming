@@ -25,7 +25,7 @@ export class AuthController {
             return this.authService.validateToken(token);
     }
 
-    @MessagePattern('refresh-token')
+    @MessagePattern("refresh-token")
         async refreshToken(@Payload() refreshToken: string) {
             try {
                 return await this.authService.refreshTokens(refreshToken);
