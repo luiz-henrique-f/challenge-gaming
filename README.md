@@ -31,6 +31,9 @@ O projeto utiliza uma arquitetura de microserviços com os seguintes componentes
                                                 │   RabbitMQ      │
                                                 │   Message       │
                                                 │   Broker        │
+                                                │   Port: 5672    │
+                                                │   Management:   │
+                                                │   Port: 15672   │
                                                 └─────────────────┘
 ```
 
@@ -51,11 +54,16 @@ O projeto utiliza uma arquitetura de microserviços com os seguintes componentes
 - **Vite** - Build tool e dev server
 - **TanStack Router** - Roteamento type-safe
 - **TanStack Query** - Gerenciamento de estado do servidor
+- **TanStack Table** - Componente de tabela avançado
 - **Tailwind CSS** - Framework CSS utilitário
 - **Radix UI** - Componentes acessíveis
 - **Socket.io Client** - Comunicação em tempo real
 - **Zod** - Validação de schemas
 - **React Hook Form** - Gerenciamento de formulários
+- **Sonner** - Sistema de notificações toast
+- **Lucide React** - Ícones
+- **Next Themes** - Gerenciamento de temas
+- **Date-fns** - Manipulação de datas
 
 ### Backend
 - **NestJS** - Framework Node.js para microserviços
@@ -63,8 +71,10 @@ O projeto utiliza uma arquitetura de microserviços com os seguintes componentes
 - **JWT** - Autenticação stateless
 - **bcrypt** - Hash de senhas
 - **Socket.io** - WebSockets para notificações
-- **RabbitMQ** - Message broker
-- **TCP** - Comunicação entre microserviços
+- **RabbitMQ** - Message broker para comunicação assíncrona
+- **Swagger/OpenAPI** - Documentação de APIs
+- **Class Validator** - Validação de dados
+- **Throttler** - Rate limiting no API Gateway
 
 ### DevOps & Infraestrutura
 - **Docker & Docker Compose** - Containerização
@@ -84,9 +94,12 @@ O projeto utiliza uma arquitetura de microserviços com os seguintes componentes
 - ✅ CRUD completo de tarefas
 - ✅ Sistema de prioridades (LOW, MEDIUM, HIGH, URGENT)
 - ✅ Estados de tarefa (TODO, IN_PROGRESS, REVIEW, DONE)
-- ✅ Atribuição de usuários
+- ✅ Atribuição de usuários múltiplos
 - ✅ Prazos e deadlines
 - ✅ Histórico de alterações
+- ✅ Sistema de filtros avançados (busca, prioridade, status, prazo)
+- ✅ Paginação de resultados
+- ✅ Filtros "Atribuídos para mim" e "Criados por mim"
 
 ### Sistema de Comentários
 - ✅ Comentários em tarefas
@@ -96,14 +109,20 @@ O projeto utiliza uma arquitetura de microserviços com os seguintes componentes
 ### Notificações
 - ✅ Notificações em tempo real via WebSocket
 - ✅ Sistema de mensageria com RabbitMQ
-- ✅ Histórico de notificações
+- ✅ Histórico de notificações persistido
+- ✅ Eventos: criação de tarefa, atualização, comentários
+- ✅ Notificações direcionadas por usuário
 
 ### Interface do Usuário
-- ✅ Landing page moderna
-- ✅ Dashboard responsivo
-- ✅ Tema escuro
-- ✅ Componentes acessíveis
-- ✅ Notificações toast
+- ✅ Landing page moderna com gradientes
+- ✅ Dashboard responsivo com filtros avançados
+- ✅ Tema escuro padrão
+- ✅ Componentes acessíveis (Radix UI)
+- ✅ Notificações toast (Sonner)
+- ✅ Modais para criação/edição de tarefas
+- ✅ Sheet lateral para comentários
+- ✅ Sistema de navegação com TanStack Router
+- ✅ Formulários com validação (React Hook Form + Zod)
 
 ## 🚀 Instalação e Execução
 
@@ -134,11 +153,11 @@ docker-compose up --build
 
 - **Frontend**: http://localhost:3000
 - **API Gateway**: http://localhost:3001
-- **Auth Service**: http://localhost:3002
-- **Tasks Service**: http://localhost:3003
-- **Notifications Service**: http://localhost:3004
+- **Auth Service**: http://localhost:3002 (Swagger: http://localhost:3002/api/docs)
+- **Tasks Service**: http://localhost:3003 (Swagger: http://localhost:3003/api/docs)
+- **Notifications Service**: http://localhost:3004 (Swagger: http://localhost:3004/api/docs)
 - **PostgreSQL**: localhost:5432
-- **RabbitMQ Management**: http://localhost:15672
+- **RabbitMQ Management**: http://localhost:15672 (admin/admin)
 
 ### Desenvolvimento Local
 
@@ -154,6 +173,16 @@ npm run dev
 # Ou executar serviços específicos
 npx turbo dev --filter=web
 npx turbo dev --filter=api-gateway
+npx turbo dev --filter=auth-service
+npx turbo dev --filter=tasks-service
+npx turbo dev --filter=notifications-service
+```
+
+**Nota**: Para desenvolvimento local, você precisará ter PostgreSQL e RabbitMQ rodando localmente ou usar Docker apenas para esses serviços:
+
+```bash
+# Apenas banco e message broker
+docker-compose up db rabbitmq
 ```
 
 ## 🏛️ Decisões Técnicas e Trade-offs
@@ -168,14 +197,15 @@ npx turbo dev --filter=api-gateway
 - ❌ Overhead de rede
 - ❌ Gerenciamento de dados distribuídos
 
-### Comunicação TCP vs HTTP
-**Decisão**: Usar TCP para comunicação entre microserviços
+### Comunicação RabbitMQ vs HTTP/TCP
+**Decisão**: Usar RabbitMQ para comunicação assíncrona entre microserviços
 **Trade-offs**:
-- ✅ Performance superior
-- ✅ Menor overhead
-- ✅ Melhor para comunicação interna
-- ❌ Mais complexo de debugar
-- ❌ Menos padronizado que REST
+- ✅ Comunicação assíncrona e confiável
+- ✅ Desacoplamento entre serviços
+- ✅ Padrão de mensageria estabelecido
+- ✅ Suporte a diferentes tipos de eventos
+- ❌ Complexidade adicional de infraestrutura
+- ❌ Overhead de message broker
 
 ### JWT vs Sessions
 **Decisão**: Implementar autenticação stateless com JWT
@@ -192,6 +222,7 @@ npx turbo dev --filter=api-gateway
 - ✅ Integração nativa com NestJS
 - ✅ Decorators TypeScript
 - ✅ Migrations automáticas
+- ✅ Suporte a relacionamentos complexos
 - ❌ Performance pode ser inferior
 - ❌ Menos type-safe que Prisma
 
@@ -326,7 +357,32 @@ npm run typeorm:run-migrations
 # Tasks Service
 cd apps/tasks-service
 npm run typeorm:run-migrations
+
+# Notifications Service
+cd apps/notifications-service
+npm run typeorm:run-migrations
 ```
+
+### Credenciais Padrão
+
+- **PostgreSQL**: 
+  - Host: localhost:5432
+  - Database: challenge_db
+  - Username: postgres
+  - Password: password
+
+- **RabbitMQ Management**:
+  - URL: http://localhost:15672
+  - Username: admin
+  - Password: admin
+
+### Documentação da API
+
+Todos os serviços possuem documentação Swagger/OpenAPI disponível:
+
+- **Auth Service**: http://localhost:3002/api/docs
+- **Tasks Service**: http://localhost:3003/api/docs  
+- **Notifications Service**: http://localhost:3004/api/docs
 
 ### Comandos Úteis
 
