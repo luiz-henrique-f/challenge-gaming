@@ -84,42 +84,73 @@ export function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
   }, [task, form])
 
   const onSubmit = async (data: TaskFormData) => {
-    if (!task) return
+  if (!task) return
 
-    const payload: Partial<TaskFormData> = {
-      ...data,
-      ...(data.title !== task.title && { title: data.title }),
-      ...(data.description !== task.description && { description: data.description }),
-      ...(data.deadline !== (task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : '') && {
-        deadline: data.deadline ? new Date(data.deadline).toISOString() : undefined
-      }),
-      ...(data.priority !== task.priority && { priority: data.priority }),
-      ...(data.status !== task.status && { status: data.status }),
-      ...(JSON.stringify(data.assignedUserIds) !== JSON.stringify(task.assignedUserIds) && {
-        assignedUserIds: data.assignedUserIds
-      }),
+  // Função para converter string para Date ou null
+  const parseDeadline = (deadlineString: string | undefined): Date | null | undefined => {
+    if (!deadlineString || deadlineString.trim() === '') {
+      return undefined // Remove o campo completamente
     }
+    
+    const date = new Date(deadlineString)
+    return isNaN(date.getTime()) ? undefined : date
+  }
 
-    Object.keys(payload).forEach(key => {
-      if (payload[key as keyof TaskFormData] === undefined) {
-        delete payload[key as keyof TaskFormData]
-      }
-    })
-
+  const formatTaskDeadlineForComparison = (dateString?: string) => {
+    if (!dateString) return ''
     try {
-      await updateTaskMutation.mutateAsync({
-        taskId: task.id,
-        taskData: payload
-      })
-      form.reset()
-      onClose()
-    } catch (error) {
-      console.error('Erro ao atualizar task:', error)
-      if ((error as any).response) {
-        console.log('🧩 Resposta do servidor:', (error as any).response.data)
-      }
+      const date = new Date(dateString)
+      return isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16)
+    } catch {
+      return ''
     }
   }
+
+  const payload: any = {
+    ...(data.title !== task.title && { title: data.title }),
+    ...(data.description !== task.description && { description: data.description }),
+    ...(data.priority !== task.priority && { priority: data.priority }),
+    ...(data.status !== task.status && { status: data.status }),
+    ...(JSON.stringify(data.assignedUserIds) !== JSON.stringify(task.assignedUserIds) && {
+      assignedUserIds: data.assignedUserIds
+    }),
+  }
+
+  // Tratamento especial para deadline
+  const currentDeadlineComparison = formatTaskDeadlineForComparison(task.deadline)
+  if (data.deadline !== currentDeadlineComparison) {
+    const parsedDeadline = parseDeadline(data.deadline)
+    if (parsedDeadline !== undefined) {
+      payload.deadline = parsedDeadline
+    } else if (data.deadline === '' && task.deadline) {
+      // Se estava vazio mas havia um deadline antes, envia null para remover
+      payload.deadline = null
+    }
+  }
+
+  // Remove campos undefined (mantém null se necessário)
+  Object.keys(payload).forEach(key => {
+    if (payload[key] === undefined) {
+      delete payload[key]
+    }
+  })
+
+  console.log('Payload sendo enviado:', payload) // Para debug
+
+  try {
+    await updateTaskMutation.mutateAsync({
+      taskId: task.id,
+      taskData: payload
+    })
+    form.reset()
+    onClose()
+  } catch (error) {
+    console.error('Erro ao atualizar task:', error)
+    if ((error as any).response) {
+      console.log('🧩 Resposta do servidor:', (error as any).response.data)
+    }
+  }
+}
 
   const handleClose = () => {
     form.reset()
@@ -216,8 +247,8 @@ export function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
                       <SelectContent>
                         <SelectItem value="TODO">Pendente</SelectItem>
                         <SelectItem value="IN_PROGRESS">Em Progresso</SelectItem>
-                        <SelectItem value="REVIEW">Concluída</SelectItem>
-                        <SelectItem value="DONE">Cancelada</SelectItem>
+                        <SelectItem value="REVIEW">Em Revisão</SelectItem>
+                        <SelectItem value="DONE">Concluída</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

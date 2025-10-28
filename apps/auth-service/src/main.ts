@@ -2,31 +2,34 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-     {
-      transport: Transport.RMQ,
-      options: {
-        urls: ['amqp://admin:admin@rabbitmq:5672'],
-        queue: 'auth_queue',
-        queueOptions: { durable: false },
+  // Cria uma aplicação HTTP normal
+  const app = await NestFactory.create(AppModule);
+
+  // Conecta como microservice
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://admin:admin@rabbitmq:5672'],
+      queue: 'auth_queue',
+      queueOptions: { durable: false },
     },
-  },
-    // {
-    //   transport: Transport.TCP,
-    //   options: {
-    //     host: '0.0.0.0',//'127.0.0.1',
-    //     port: 3002,
-    //   }
-    // }
-  );
+  });
 
   app.useGlobalPipes(new ValidationPipe());
+  
+  // Agora sim pode usar o Swagger
+  setupSwagger(app);
 
-  await app.listen();
+  // Inicia o microservice
+  await app.startAllMicroservices();
 
-  Logger.log('API Gateway microservice is listening on TCP port 3002');
+  // Inicia o servidor HTTP na porta 3001
+  await app.listen(3001);
+
+  Logger.log('Auth Service is running on HTTP port 3001 and RabbitMQ');
+  Logger.log('Swagger documentation available at http://localhost:3001/api/docs');
 }
 bootstrap();

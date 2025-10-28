@@ -176,7 +176,7 @@ export function TasksPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="TODO">A fazer</SelectItem>
+                  <SelectItem value="TODO">Pendente</SelectItem>
                   <SelectItem value="IN_PROGRESS">Em andamento</SelectItem>
                   <SelectItem value="REVIEW">Em Revisão</SelectItem>
                   <SelectItem value="DONE">Concluída</SelectItem>
